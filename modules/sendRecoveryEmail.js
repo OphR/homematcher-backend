@@ -3,10 +3,13 @@ const nodemailer = require('nodemailer');
 // Fonction pour envoyer un e-mail de récupération
 function sendRecoveryEmail(email, recoveryToken) {
   let transporter = nodemailer.createTransport({
-    service: 'gmail',
+    //service: 'gmail',
+    host: 'smtp.sendgrid.net', // Serveur SMTP de SendGrid
+    port: 587, // Port SMTP pour les connexions non chiffrées/TLS
+    secure: false, // false pour TLS
     auth: {
-      user: "homematcher.team@gmail.com",
-      pass: "homeMatcher2024"
+      user: "apikey", // Nom d'utilisateur : apikey
+      pass: process.env.API_KEY   // API_KEY= "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"  
     }
   });
 
@@ -14,10 +17,10 @@ function sendRecoveryEmail(email, recoveryToken) {
     from: "homematcher.team@gmail.com",
     to: email,
     subject: 'Récupération de mot de passe',
-    text: `Bonjour,\n\nVoici votre lien de récupération de mot de passe : http://votre_site.com/resetpassword?token=${recoveryToken}\n\nCordialement,\nVotre application`
+    text: `Bonjour,\n\nVoici votre lien de récupération de mot de passe : http://votre_site.com/resetpassword?token=${recoveryToken}\n\nCordialement,\nl'équipe HomeMather`
   };
 
-  transporter.sendMail(mailOptions, function(error, info) {
+  transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.error('Erreur lors de l\'envoi de l\'e-mail de récupération : ', error);
     } else {
