@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const connectionString = process.env.CONNECTION_STRING
+//mongodb+srv://<username>:<password>@cluster0.uwgpf8v.mongodb.net/
 mongoose.set("strictQuery", true)
 
 mongoose
