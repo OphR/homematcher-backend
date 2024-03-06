@@ -4,13 +4,13 @@ const realtySchema = mongoose.Schema({
 
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
     description: String,
-    location: String,
-    numberOfRooms: Number,
+    area: String,
+    rooms: Number,
     price: Number,
-    landArea : Number,
-    livingArea : Number,
-    propertyType : String,
-    terrace : Boolean,
+    delay: Number,
+    budget : Number,
+    financed: String,
+    imageUrl: String,
 });
 
 const Realty = mongoose.model('realtys', realtySchema);

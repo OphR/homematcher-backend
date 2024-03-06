@@ -3,6 +3,10 @@ var router = express.Router();
 const Realty = require('../models/realtys');
 const { checkBody } = require('../modules/checkBody');
 
+const cloudinary = require('cloudinary').v2
+const uniqid = require('uniqid')
+const fs = require('fs')
+
 // Route pour récupérer tous les biens immobiliers
 router.get('/', (req, res) => {
   Realty.find().then(data => {
@@ -12,20 +16,20 @@ router.get('/', (req, res) => {
 
   // Route pour ajouter un nouveau bien immobilier
 router.post('/addRealtys', (req, res) => {
-  if (!checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace'])) {
+  if (!checkBody(req.body, ['description', 'area', 'numberOfRooms', 'price', 'delay', 'budget', 'financed', 'imageUrl'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
  // Création d'un nouveau bien immobilier avec les données reçues
   const newRealty = new Realty({
-    price: req.body.price,
-    location: req.body.location,
-    propertyType: req.body.propertyType,
-    livingArea: req.body.livingArea,
-    landArea: req.body.landArea,
-    numberOfRooms: req.body.numberOfRooms,
-    terrace: req.body.terrace,
     description: req.body.description,
+    area: req.body.area,
+    rooms: req.body.rooms,
+    price: req.body.price,
+    delay: req.body.delay,
+    budget : req.body.budget,
+    financed: req.body.financed,
+    imageUrl: req.body.imageUrl,
   });
   newRealty.save().then(newData => {
     res.json({ result: true, realty: newData });
@@ -70,4 +74,20 @@ router.delete('/:id', async (req, res) => {
         });
 });
 
+router.post('/upload', async (req, res) => {
+  console.log(req.files.photoFromFront)
+  // Définir le chemin en local du fichier
+  const photoPath = `./tmp/${uniqid()}.jpg`
+  console.log(photoPath)
+  const resultMove = await req.files.photoFromFront.mv(photoPath)
+
+  if (!resultMove) {
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath)
+    res.json({ result: true, url: resultCloudinary.secure_url })
+
+  } else {
+    res.json ({ result: false, error: resultMove})
+  }
+    fs.unlinkSync(photoPath)
+})
 module.exports = router;
