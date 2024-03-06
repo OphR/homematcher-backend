@@ -58,7 +58,7 @@ module.exports = router;
 router.post('/addRealtys', async (req, res) => {
   //console.log("Requete reçue :", req.body);
   const { description, area, rooms, price, delay, budget, financed, imageUrl } = req.body;
-  const token = "50L-TX6qq3OrtIBQkB0tMXKkMVxqMdrh" //req.headers.authorization; // Récupérer le token depuis les headers
+  const token = req.headers.authorization; // Récupérer le token depuis les headers
   console.log(token)
   if (!checkBody(req.body, ['description', 'area', 'rooms', 'price', 'delay', 'budget', 'financed', 'imageUrl'])) {
     //console.log("Vérification des champs :", checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace']));
