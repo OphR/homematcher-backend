@@ -1,36 +1,60 @@
 var express = require('express');
 var router = express.Router();
 const Realty = require('../models/realtys');
+const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 
 // Route pour récupérer tous les biens immobiliers
-router.get('/', (req, res) => {
-  Realty.find().then(data => {
-    res.json({ result: true, realty: data })
-  });
-  });
+router.get('/', async (req, res) => {
+  try {
+      const token = req.headers.authorization; // Récupérer le token depuis les headers
+      // Rechercher l'utilisateur correspondant au token
+      const user = await User.findOne({ token: token });
+      // Rechercher toutes les annonces associées à cet utilisateur
+      const realtys = await Realty.find({ user: user._id });
+      res.json({ result: true, realtys });
+  } catch (error) {
+      res.json({ message: error.message });
+  }
+});
+
+module.exports = router;
 
   // Route pour ajouter un nouveau bien immobilier
-router.post('/addRealtys', (req, res) => {
-  if (!checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
-    return;
-  }
- // Création d'un nouveau bien immobilier avec les données reçues
-  const newRealty = new Realty({
-    price: req.body.price,
-    location: req.body.location,
-    propertyType: req.body.propertyType,
-    livingArea: req.body.livingArea,
-    landArea: req.body.landArea,
-    numberOfRooms: req.body.numberOfRooms,
-    terrace: req.body.terrace,
-    description: req.body.description,
+  router.post('/addRealtys', async (req, res) => {
+    //console.log("Requete reçue :", req.body);
+    const { description, location, numberOfRooms, price, landArea, livingArea, propertyType, terrace } = req.body;
+    const token = req.headers.authorization; // Récupérer le token depuis les headers
+    console.log(token)
+    if (!checkBody(req.body, [ 'description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace',])) {
+      //console.log("Vérification des champs :", checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace']));
+      res.json({ result: false, error: 'Missing or empty fields' });
+      return;
+    }
+    try {
+      const user = await User.findOne({ token: token });
+      // Créer un Realty avec les données reçues
+      const realty = new Realty({
+        user: user._id,
+        description,
+        location,
+        numberOfRooms,
+        price,
+        landArea,
+        livingArea,
+        propertyType,
+        terrace,
+      });
+  
+      // Enregistrer Realty dans la base de données
+      const savedRealty = await realty.save();
+  
+      res.json({result: true, savedRealty}); 
+    } catch (error) {
+      res.json({ message: error.message });
+    }
   });
-  newRealty.save().then(newData => {
-    res.json({ result: true, realty: newData });
-  });
-});
+
 // Route pour mettre à jour un bien immobilier existant
 router.put('/:id', async (req, res) => {
     // Récupération de l'identifiant du bien immobilier à mettre à jour depuis les paramètres de la requête
@@ -53,7 +77,7 @@ router.put('/:id', async (req, res) => {
     
 });
 // Route pour supprimer un bien immobilier
-router.delete('/:id', async (req, res) => {
+router.delete('/', async (req, res) => {
      // Suppression du bien immobilier avec l'identifiant spécifié
     Realty.deleteOne({ _id: req.params.id })
         .then(deletedRealty => {
@@ -68,6 +92,20 @@ router.delete('/:id', async (req, res) => {
             console.error(error);
             res.status(500).json({ error: "An error occurred while deleting the realty" });
         });
+});
+
+router.delete('/delete', async (req, res) => {
+  try {
+      const token = req.headers.authorization; // Récupérer le token depuis les headers
+      // Rechercher l'utilisateur correspondant au token
+      const user = await User.findOne({ token: token });
+      // Rechercher toutes les annonces associées à cet utilisateur
+      const realtys = await Realty.find({ user: user._id });
+      const deleteRealty = await Realty.deleteOne({realty: realtys })
+      res.json({ result: true, deleteRealty });
+  } catch (error) {
+      res.json({ message: error.message });
+  }
 });
 
 module.exports = router;
