@@ -103,23 +103,6 @@ router.put('/:id', async (req, res) => {
 
 });
 // Route pour supprimer un bien immobilier
-router.delete('/', async (req, res) => {
-     // Suppression du bien immobilier avec l'identifiant spécifié
-    Realty.deleteOne({ _id: req.params.id })
-        .then(deletedRealty => {
-          if(deletedRealty.deletedCount > 0) {
-          //console.log(deletedRealty);
-          res.status(200).json({ message: "Realty deleted successfully" });
-          }else {
-            res.status(200).json({ message: "Realty already delete"})
-          }
-        })
-        .catch(error => {
-            console.error(error);
-            res.status(500).json({ error: "An error occurred while deleting the realty" });
-        });
-});
-
 router.delete('/delete', async (req, res) => {
   try {
       const token = req.headers.authorization; // Récupérer le token depuis les headers
