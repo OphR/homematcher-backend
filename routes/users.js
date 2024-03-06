@@ -12,14 +12,14 @@ const validator = require('validator');
 // Route pour envoyer un e-mail de récupération de mot de passe à l'utilisateur
 router.post('/forgotpassword', async (req, res) => {
   if (!checkBody(req.body, ['email'])) {
-    res.json({ result: false, error: 'Missing or empty email field' });
+    res.json({ result: false, error: 'Champs manquants ou vides' });
     return;
   }
 
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      res.json({ result: false, error: 'User not found' });
+      res.json({ result: false, error: 'Utilisateur non trouvé' });
       return;
     }
 
@@ -29,10 +29,10 @@ router.post('/forgotpassword', async (req, res) => {
 
     sendRecoveryEmail(user.email, recoveryToken);
 
-    res.json({ result: true, message: 'Password recovery email sent successfully' });
+    res.json({ result: true, message: 'Email de récupération de mot de passe envoyé avec succès' });
   } catch (error) {
     console.error(error);
-    res.json({ result: false, error: 'An error occurred while processing the request' });
+    res.json({ result: false, error: 'Une erreur s\'est produite lors du traitement de la requête' });
   }
 });
 
@@ -48,7 +48,7 @@ router.get('/', (req, res) => {
   // Inscription d'un nouvel utilisateur
   router.post('/signup', (req, res) => {
     if (!checkBody(req.body, ['email', 'password'])) {
-      res.json({ result: false, error: 'Missing or empty fields' });
+      res.json({ result: false, error: 'Champs manquants ou vides' });
       return;
     }
   
@@ -57,7 +57,7 @@ router.get('/', (req, res) => {
       if (data === null) {
         const hash = bcrypt.hashSync(req.body.password, 10);
         if (!validator.isEmail(req.body.email)) {
-          return res.json("Veuillez fournir une adresse e-mail valide.");
+          return res.json({result: false, error: "Veuillez fournir une adresse e-mail valide."});
       }
         const newUser = new User({
           email: req.body.email,
@@ -70,7 +70,7 @@ router.get('/', (req, res) => {
         });
       } else {
         // User already exists in database
-        res.json({ result: false, error: 'User already exists' });
+        res.json({ result: false, error: 'L\'utilisateur existe déjà' });
       }
     });
   });
@@ -78,18 +78,18 @@ router.get('/', (req, res) => {
 // Connexion d'un utilisateur existant
   router.post('/signin', (req, res) => {
     if (!checkBody(req.body, ['email', 'password'])) {
-      res.json({ result: false, error: 'Missing or empty fields' });
+      res.json({ result: false, error: 'Champs manquants ou vides' });
       return;
     }
   
     User.findOne({ email: req.body.email }).then(data => {
       if (!validator.isEmail(req.body.email)) {
-        return res.json("Veuillez fournir une adresse e-mail valide.");
+        return res.json({result: false, error:"Veuillez fournir une adresse e-mail valide."});
     }
       if (data && bcrypt.compareSync(req.body.password, data.password)) {
         res.json({ result: true, user: data });
       } else {
-        res.json({ result: false, error: 'User not found or wrong password' });
+        res.json({ result: false, error: 'Utilisateur non trouvé ou mot de passe incorrect' });
       }
     });
   });
