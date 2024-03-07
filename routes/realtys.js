@@ -122,11 +122,9 @@ router.delete('/delete/:realtyId', async (req, res) => {
 });
 
 
-router.post('/upload', async (req, res) => {
-  console.log(req.files.photoFromFront)
-  // Définir le chemin en local du fichier
+router.post('/upload', async (req, res) => {  
+ // Définir le chemin en local du fichier
   const photoPath = `./tmp/${uniqid()}.jpg`
-  console.log(photoPath)
   const resultMove = await req.files.photoFromFront.mv(photoPath)
 
   if (!resultMove) {
