@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const Realty = require('../models/realtys');
-const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 const cloudinary = require('cloudinary').v2
 const uniqid = require('uniqid')
 const fs = require('fs')
+const User = require('../models/users')
 
 // Route pour récupérer tous les biens immobiliers
 router.get('/', async (req, res) => {

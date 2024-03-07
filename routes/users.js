@@ -38,13 +38,19 @@ router.post('/forgotpassword', async (req, res) => {
 
 
 
-// Récupère tous les utilisateurs de la base de données
-router.get('/', (req, res) => {
-  User.find().then(data => {
-    res.json({ result: true, User: data })
-  });
-  
-  });
+// Récupère un utilisateurs precis grâce a son tokende la base de données
+router.get('/', async (req, res) => {
+  try{
+    const token = req.headers.authorization; // Récupérer le token depuis les headers
+// Rechercher l'utilisateur correspondant au token
+    const user = await User.findOne({ token: token });
+
+    res.json({result: true, user})
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+});
+ 
   // Inscription d'un nouvel utilisateur
   router.post('/signup', (req, res) => {
     if (!checkBody(req.body, ['email', 'password'])) {
@@ -95,15 +101,12 @@ router.get('/', (req, res) => {
   });
   
 // Mise à jour du profil d'un utilisateur
-  router.put('/:id', async (req, res) => {
-    const { id } = req.params;
+  router.put('/update', async (req, res) => {
+    const token = "50L-TX6qq3OrtIBQkB0tMXKkMVxqMdrh"//req.headers.authorization; // Récupérer le token depuis les headers
     const { firstname, lastname, age, prosituation, financialCapacity, desciption  } = req.body; 
-    if (!checkBody(req.body, ['firstname', 'lastname', 'age', 'prosituation', 'financialCapacity', 'desciption' ])) {
-      res.json({ result: false, error: 'Missing or empty fields' });
-      return;
-    }
+
     try {
-      const profil = await User.findByIdAndUpdate(id, { firstname, lastname, age, prosituation, financialCapacity, desciption }, { new: true });
+      const profil = await User.findOneAndUpdate({token} , { firstname, lastname, age, prosituation, financialCapacity, desciption }, { new: true });
   
       if (!profil) {
          res.json({ message: "profil non trouvé" });
