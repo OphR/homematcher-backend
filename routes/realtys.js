@@ -2,11 +2,9 @@ var express = require('express');
 var router = express.Router();
 const Realty = require('../models/realtys');
 const { checkBody } = require('../modules/checkBody');
-
 const cloudinary = require('cloudinary').v2
 const uniqid = require('uniqid')
 const fs = require('fs')
-const User = require('../models/users');
 
 // Route pour récupérer tous les biens immobiliers
 router.get('/', async (req, res) => {
@@ -16,7 +14,12 @@ router.get('/', async (req, res) => {
       const user = await User.findOne({ token: token });
       // Rechercher toutes les annonces associées à cet utilisateur
       const realtys = await Realty.find({ user: user._id });
-      res.json({ result: true, realtys });
+      if(realtys=== null){
+        res.json({ result: false, error:"Il n' a pas de bien ajouté" });
+      }else {
+        res.json({ result: true, realtys });
+      }
+      
   } catch (error) {
       res.json({ message: error.message });
 }
@@ -66,6 +69,7 @@ router.post('/addRealtys', async (req, res) => {
     // Créer un Realty avec les données reçues
     const realty = new Realty({
       user: user._id,
+      description,
       area,
       rooms,
       price,
@@ -105,22 +109,19 @@ router.put('/:id', async (req, res) => {
 
 });
 // Route pour supprimer un bien immobilier
-router.delete('/:id', async (req, res) => {
-     // Suppression du bien immobilier avec l'identifiant spécifié
-    Realty.deleteOne({ _id: req.params.id })
-        .then(deletedRealty => {
-          if(deletedRealty.deletedCount > 0) {
-          //console.log(deletedRealty);
-          res.status(200).json({ message: "Realty deleted successfully" });
-          }else {
-            res.status(200).json({ message: "Realty already delete"})
-          }
-        })
-        .catch(error => {
-            console.error(error);
-            res.status(500).json({ error: "An error occurred while deleting the realty" });
-        });
+router.delete('/delete', async (req, res) => {
+  try {
+      const token = req.headers.authorization; // Récupérer le token depuis les headers
+      // Rechercher l'utilisateur correspondant au token
+      const user = await User.findOne({ token: token });
+      // Suppression du bien immobilier avec l'identifiant spécifié
+      const realtys = await Realty.deleteOne({ user: user._id });
+      res.json({ result: true, realtys });
+  } catch (error) {
+      res.json({ message: error.message });
+}
 });
+
 
 router.post('/upload', async (req, res) => {
   console.log(req.files.photoFromFront)
