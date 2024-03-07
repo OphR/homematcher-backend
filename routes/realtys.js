@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 const Realty = require('../models/realtys');
-const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 
 const cloudinary = require('cloudinary').v2
