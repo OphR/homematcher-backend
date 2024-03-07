@@ -10,7 +10,7 @@ const realtySchema = mongoose.Schema({
     delay: Number,
     budget : Number,
     financed: String,
-    imageUrl: String,
+    imageUrl: [String],
 });
 
 const Realty = mongoose.model('realtys', realtySchema);
