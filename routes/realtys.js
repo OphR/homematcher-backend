@@ -60,7 +60,7 @@ router.post('/addRealtys', async (req, res) => {
   const { description, area, rooms, price, delay, budget, financed, imageUrl } = req.body;
   const token = req.headers.authorization; // Récupérer le token depuis les headers
   console.log(token)
-  if (!checkBody(req.body, ['description', 'area', 'rooms', 'price', 'delay', 'budget', 'financed', 'imageUrl'])) {
+  if (!checkBody(req.body, ['description', 'area', 'rooms', 'price', 'delay', 'budget', 'financed'])) {
     //console.log("Vérification des champs :", checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace']));
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
@@ -110,17 +110,15 @@ router.put('/:id', async (req, res) => {
 
 });
 // Route pour supprimer un bien immobilier
-router.delete('/delete', async (req, res) => {
+router.delete('/delete/:realtyId', async (req, res) => {
   try {
-      const token = req.headers.authorization; // Récupérer le token depuis les headers
-      // Rechercher l'utilisateur correspondant au token
-      const user = await User.findOne({ token: token });
-      // Suppression du bien immobilier avec l'identifiant spécifié
-      const realtys = await Realty.deleteOne({ user: user._id });
-      res.json({ result: true, realtys });
+    const realtyId = req.params.realtyId; // Récupérer l'ID de la propriété immobilière depuis les paramètres de l'URL
+    // Suppression du bien immobilier avec l'identifiant spécifié
+    const realty = await Realty.deleteOne({ _id: realtyId });
+    res.json({ result: true, realty });
   } catch (error) {
-      res.json({ message: error.message });
-}
+    res.json({ message: error.message });
+  }
 });
 
 
