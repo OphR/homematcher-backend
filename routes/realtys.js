@@ -10,26 +10,26 @@ const User = require('../models/users')
 // Route pour récupérer tous les biens immobiliers
 router.get('/', async (req, res) => {
   try {
-      const token = req.headers.authorization; // Récupérer le token depuis les headers
-      // Rechercher l'utilisateur correspondant au token
-      const user = await User.findOne({ token: token });
-      // Rechercher toutes les annonces associées à cet utilisateur
-      const realtys = await Realty.find({ user: user._id });
-      if(realtys=== null){
-        res.json({ result: false, error:"Il n' a pas de bien ajouté" });
-      }else {
-        res.json({ result: true, realtys });
-      }
-      
+    const token = req.headers.authorization; // Récupérer le token depuis les headers
+    // Rechercher l'utilisateur correspondant au token
+    const user = await User.findOne({ token: token });
+    // Rechercher toutes les annonces associées à cet utilisateur
+    const realtys = await Realty.find({ user: user._id });
+    if (realtys === null) {
+      res.json({ result: false, error: "Il n' a pas de bien ajouté" });
+    } else {
+      res.json({ result: true, realtys });
+    }
+
   } catch (error) {
-      res.json({ message: error.message });
-}
+    res.json({ message: error.message });
+  }
 });
 
 // Route pour récupérer Uniquement les biens immobiliers Qui correspond à nos critères de recherche
 router.get('/filteredRealtys', (req, res) => {
   const filters = req.query; // Les filtres sont envoyés dans le corps de la requête
-//Exemple : price[$gt] :1200000
+  //Exemple : price[$gt] :1200000
   Realty.find(filters).then(data => {
     if (data.length > 0) {
       res.json({
@@ -37,7 +37,7 @@ router.get('/filteredRealtys', (req, res) => {
         message: `${data.length} bien(s) immobiliers qui correspond à vos critères de recherche`,
         realty: data
       });
-    }else{
+    } else {
       res.json({
         result: false,
         message: 'Aucun bien immobilier n\'a été trouvé en fonction des critères de recherche fournis'
@@ -57,10 +57,10 @@ module.exports = router;
 // Route pour ajouter un nouveau bien immobilier
 router.post('/addRealtys', async (req, res) => {
   //console.log("Requete reçue :", req.body);
-  const { description, area, rooms, price, delay, budget, financed, imageUrl } = req.body;
+  const {description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId,} = req.body;
   const token = req.headers.authorization; // Récupérer le token depuis les headers
   console.log(token)
-  if (!checkBody(req.body, [ 'area', 'rooms', 'price', 'delay', 'budget', 'financed', 'imageUrl'])) {
+  if (!checkBody(req.body, ['description', 'price', 'livingArea', 'outdoorArea', 'rooms', 'location', 'terrace', 'typeOfRealty', 'delay', 'budget', 'financed',])) {
     //console.log("Vérification des champs :", checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace']));
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
@@ -68,17 +68,7 @@ router.post('/addRealtys', async (req, res) => {
   try {
     const user = await User.findOne({ token: token });
     // Créer un Realty avec les données reçues
-    const realty = new Realty({
-      user: user._id,
-      description,
-      area,
-      rooms,
-      price,
-      delay,
-      budget,
-      financed,
-      imageUrl
-    });
+    const realty = new Realty({user: user._id, description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId,});
 
     // Enregistrer Realty dans la base de données
     const savedRealty = await realty.save();
@@ -92,10 +82,10 @@ router.post('/addRealtys', async (req, res) => {
 router.put('/:id', async (req, res) => {
   // Récupération de l'identifiant du bien immobilier à mettre à jour depuis les paramètres de la requête
   const { id } = req.params;
-  const { description, location, numberOfRooms, price, landArea, livingArea, propertyType, terrace } = req.body;
+  const {description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId, } = req.body;
 
   try {
-    const realty = await Realty.findByIdAndUpdate(id, { description, location, numberOfRooms, price, landArea, livingArea, propertyType, terrace }, { new: true });
+    const realty = await Realty.findByIdAndUpdate(id, {description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId,}, { new: true });
 
     if (!realty) {
       res.json({ message: "realty non trouvé" });
@@ -123,19 +113,24 @@ router.delete('/delete/:realtyId', async (req, res) => {
 
 
 router.post('/upload', async (req, res) => {
-  console.log(req.files.photoFromFront)
-  // Définir le chemin en local du fichier
-  const photoPath = `./tmp/${uniqid()}.jpg`
-  console.log(photoPath)
-  const resultMove = await req.files.photoFromFront.mv(photoPath)
+  try {
+    if (!req.files || !req.files.photoFromFront) {
+      throw new Error('Aucun fichier trouvé');
+    }
 
-  if (!resultMove) {
-    const resultCloudinary = await cloudinary.uploader.upload(photoPath)
-    res.json({ result: true, url: resultCloudinary.secure_url })
+    const photoPath = `./tmp/${uniqid()}.jpg`;
+    await req.files.photoFromFront.mv(photoPath);
 
-  } else {
-    res.json ({ result: false, error: resultMove})
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+    fs.unlinkSync(photoPath);
+
+    res.json({ result: true, url: resultCloudinary.secure_url });
+  } catch (error) {
+    console.error('Erreur lors du téléchargement de la photo :', error);
+    res.status(500).json({ result: false, error: error.message });
   }
-    fs.unlinkSync(photoPath)
-})
+});
+
+
+
 module.exports = router;
