@@ -11,6 +11,7 @@ const realtySchema = mongoose.Schema({
     budget : Number,
     financed: String,
     imageUrl: [String],
+    realtyId: String,
 });
 
 const Realty = mongoose.model('realtys', realtySchema);
