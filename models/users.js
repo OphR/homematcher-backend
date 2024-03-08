@@ -4,12 +4,10 @@ const userSchema = mongoose.Schema({
   email: String,
   username: String,
   password: String,
-  firstname: String,
-  lastname: String,
-  age: Number,
-  prosituation: String,
-  financialCapacity: Number,
-  desciption: String,
+  delay: Number,
+  financed: String,
+  financialCapacity: String,
+  description: String,
   token: String,
 });
 
