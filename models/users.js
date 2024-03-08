@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
   delay: Number,
   financed: String,
   financialCapacity: String,
-  desciption: String,
+  description: String,
   token: String,
 });
 
