@@ -52,7 +52,7 @@ router.get('/filteredRealtys', (req, res) => {
 
 
 
-module.exports = router;
+
 
 // Route pour ajouter un nouveau bien immobilier
 router.post('/addRealtys', async (req, res) => {
