@@ -36,7 +36,29 @@ router.post('/forgotpassword', async (req, res) => {
   }
 });
 
+router.get('/filteredUsers', (req, res) => {
+  const filters = req.query; // Les filtres sont envoyés dans le corps de la requête
+  //Exemple : delay[$lt] :7 , financed : true ,  financialCapacity[$lt] : 100000
 
+  User.find(filters).then(data => {
+    if (data.length > 0) {
+      res.json({
+        result: true,
+        message: `${data.length} Utilisateurs qui correspond à vos critères de recherche`,
+        users: data
+      });
+    } else {
+      res.json({
+        result: false,
+        message: 'Aucun Utilisateurs n\'a été trouvé en fonction des critères de recherche fournis'
+      })
+    }
+
+  }).catch(err => {
+    console.error(err);
+    res.status(500).json({ result: false, error: "Erreur lors de la récupération des Utilisateurs." });
+  });
+});
 
 // Récupère un utilisateurs precis grâce a son tokende la base de données
 router.get('/', async (req, res) => {
