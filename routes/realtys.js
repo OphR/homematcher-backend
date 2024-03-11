@@ -52,15 +52,13 @@ router.get('/filteredRealtys', (req, res) => {
 
 
 
-module.exports = router;
-
 // Route pour ajouter un nouveau bien immobilier
 router.post('/addRealtys', async (req, res) => {
   //console.log("Requete reçue :", req.body);
   const {description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId,} = req.body;
   const token = req.headers.authorization; // Récupérer le token depuis les headers
   console.log(token)
-  if (!checkBody(req.body, ['description', 'price', 'livingArea', 'outdoorArea', 'rooms', 'location', 'terrace', 'typeOfRealty', 'delay', 'budget', 'financed',])) {
+  if (!checkBody(req.body, ['description'])) {
     //console.log("Vérification des champs :", checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace']));
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
@@ -68,7 +66,7 @@ router.post('/addRealtys', async (req, res) => {
   try {
     const user = await User.findOne({ token: token });
     // Créer un Realty avec les données reçues
-    const realty = new Realty({user: user._id, description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId,});
+    const realty = new Realty({user: user._id, description, price, livingArea, rooms,delay,budget,financed, imageUrl, realtyId,});
 
     // Enregistrer Realty dans la base de données
     const savedRealty = await realty.save();
