@@ -68,7 +68,7 @@ router.post('/addRealtys', async (req, res) => {
   try {
     const user = await User.findOne({ token: token });
     // Créer un Realty avec les données reçues
-    const realty = new Realty({user: user._id, description, price, livingArea, outdoorArea, rooms, location ,terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId,});
+    const realty = new Realty({user: user._id, description, price, livingArea, outdoorArea, rooms, terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId,});
 
     // Enregistrer Realty dans la base de données
     const savedRealty = await realty.save();

@@ -9,6 +9,7 @@ const userSchema = mongoose.Schema({
   financialCapacity: String,
   description: String,
   token: String,
+  likedBy :[[{ type: mongoose.Schema.Types.ObjectId, ref: 'realtys' }]]
 });
 
 const User = mongoose.model('users', userSchema);
