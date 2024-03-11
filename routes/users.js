@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/users');
+const Realty = require('../models/realtys');
 const { checkBody } = require('../modules/checkBody');
 const {sendRecoveryEmail} = require('../modules/sendRecoveryEmail')
 const uid2 = require('uid2');
@@ -140,4 +141,53 @@ router.get('/', async (req, res) => {
     }
   });
   
+  // Route pour gérer les notifications
+    router.post('/notifications', async (req, res) => {
+      const token = req.headers.authorization;
+      try {
+          const {realtyId, action, email } = req.body;
+          //Exemple : token : rdj4_t625PhSLGrbnVh_QnlZNOO7S8-v , realtyId: 65eedb8381acc97e07b529b2 , action: realtyLike , email : email@gmail.com
+          if (action === 'realtyLike') {
+              const [user, realty] = await Promise.all([
+                  User.findOne({ token: token }),
+                  Realty.findById(realtyId)
+              ]);
+  
+          if (!user || !realty) {
+              return res.status(404).json({ message: 'Utilisateur ou réalité introuvable.' });
+          }
+  
+          // Envoyer la notification à l'utilisateur de la réalité
+          const notificationMessage = `${user.username} a aimé votre bien immobilier N°${realty._id} .`;
+          
+          realty.likedBy.push(user._id);
+          await realty.save();
+  
+          return res.status(200).json({ message: 'Notification envoyée avec succès.' ,notificationMessage});
+      } else if (action === 'profileLike') {
+        
+        const likingUser = await User.findOne({ token: token }); // l'utilisateur qui aime le profil (moi en tant que vendeur)
+        const likedUser = await User.findOne({ email: email }); //l'utilisateur dont le profil a été aimé (l'acheteur potentiel)
+  
+        if (!likingUser || !likedUser) {
+            return res.status(404).json({ message: 'Utilisateur introuvable.' });
+        }
+  
+        const notificationMessage = `${likingUser.username} a aimé votre profil de ${likedUser.username}`;
+        // Envoyer la notification à l'utilisateur dont le profil a été aimé
+  
+        likedUser.likedBy.push(likingUser._id);
+          await likedUser.save();
+  
+  
+        return res.status(200).json({ message: 'Notification envoyée avec succès.', notificationMessage });
+    } else {
+          return res.status(400).json({ message: 'Action non prise en charge.' });
+      }
+  } catch (error) {
+      console.error('Erreur lors de la gestion des notifications :', error);
+      res.status(500).json({ message: 'Une erreur est survenue lors de la gestion des notifications.' });
+  }
+  });
+
 module.exports = router;

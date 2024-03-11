@@ -16,6 +16,7 @@ const realtySchema = mongoose.Schema({
     financed: Boolean,
     imageUrl: [String],
     realtyId: String,
+    likedBy :[[{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]]
 });
 
 const Realty = mongoose.model('realtys', realtySchema);
