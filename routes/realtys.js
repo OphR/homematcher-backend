@@ -68,7 +68,7 @@ router.post('/addRealtys', async (req, res) => {
   try {
     const user = await User.findOne({ token: token });
     // Créer un Realty avec les données reçues
-    const realty = new Realty({user: user._id, description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId,});
+    const realty = new Realty({user: user._id, description, price, livingArea, rooms,delay,budget,financed, imageUrl, realtyId,});
 
     // Enregistrer Realty dans la base de données
     const savedRealty = await realty.save();
@@ -111,12 +111,6 @@ router.delete('/delete/:realtyId', async (req, res) => {
   }
 });
 
-// Configuration de Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 router.post('/upload', async (req, res) => {
   try {
