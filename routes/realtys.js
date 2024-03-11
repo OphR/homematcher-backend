@@ -60,7 +60,7 @@ router.post('/addRealtys', async (req, res) => {
   const {description, price, livingArea, outdoorArea, rooms, location,terrace,typeOfRealty,delay,budget,financed, imageUrl, realtyId,} = req.body;
   const token = req.headers.authorization; // Récupérer le token depuis les headers
   console.log(token)
-  if (!checkBody(req.body, ['description'])) {
+  if (!checkBody(req.body, ['description', 'price'])) {
     //console.log("Vérification des champs :", checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace']));
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
