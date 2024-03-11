@@ -5,7 +5,7 @@ const userSchema = mongoose.Schema({
   username: String,
   password: String,
   delay: Number,
-  financed: String,
+  financed: Boolean,
   financialCapacity: String,
   description: String,
   token: String,
