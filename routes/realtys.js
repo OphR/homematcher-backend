@@ -52,7 +52,7 @@ router.get('/filteredRealtys', (req, res) => {
 
 
 
-module.exports = router;
+
 
 // Route pour ajouter un nouveau bien immobilier
 router.post('/addRealtys', async (req, res) => {
@@ -111,6 +111,12 @@ router.delete('/delete/:realtyId', async (req, res) => {
   }
 });
 
+// Configuration de Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 router.post('/upload', async (req, res) => {
   try {
