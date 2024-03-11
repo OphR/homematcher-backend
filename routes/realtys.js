@@ -114,9 +114,9 @@ router.delete('/delete/:realtyId', async (req, res) => {
 
 router.post('/upload', async (req, res) => {
   try {
-    if (!req.files || !req.files.photoFromFront) {
-      throw new Error('Aucun fichier trouvé');
-    }
+    // if (!req.files || !req.files.photoFromFront) {
+    //   throw new Error('Aucun fichier trouvé');
+    // }
 
     const photoPath = `./tmp/${uniqid()}.jpg`;
     await req.files.photoFromFront.mv(photoPath);
