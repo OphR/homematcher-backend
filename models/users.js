@@ -10,7 +10,7 @@ const userSchema = mongoose.Schema({
   budget: Number,
   description: String,
   token: String,
-  likedBy :[[{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]]
+  likedBy :[{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]
 });
 
 const User = mongoose.model('users', userSchema);
