@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
   password: String,
   delay: Number,
   financed: Boolean,
-  financialCapacity: String,
+  budget: Number,
   description: String,
   token: String,
   likedBy :[[{ type: mongoose.Schema.Types.ObjectId, ref: 'realtys' }]]

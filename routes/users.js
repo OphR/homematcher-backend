@@ -126,9 +126,9 @@ router.get('/', async (req, res) => {
 // Mise à jour du profil d'un utilisateur
   router.put('/update', async (req, res) => {
     const token = req.headers.authorization; //"50L-TX6qq3OrtIBQkB0tMXKkMVxqMdrh" // Récupérer le token depuis les headers
-    const { email,username, delay, financed, financialCapacity, description } = req.body; 
+    const { email,username, delay, financed, budget, description } = req.body; 
     try {
-      const profil = await User.findOneAndUpdate({token} , {  email,username, delay, financed, financialCapacity, description}, { new: true });
+      const profil = await User.findOneAndUpdate({token} , { username, delay, budget, financed, description}, { new: true });
   
       if (!profil) {
          res.json({ message: "profil non trouvé" });
