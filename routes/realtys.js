@@ -35,7 +35,8 @@ router.get('/filteredRealtys', async (req, res) => {
   const user = await User.findOne({ token: token });
   // Rechercher toutes les annonces associées à cet utilisateur
   const realtys = await Realty.find({ user: user._id });
-  filters.realtyId = { $ne: realtys.realtyId };
+  const realtyIds = realtys.map(realty => realty.realtyId);
+  filters.realtyId = { $nin: realtyIds };
   Realty.find(filters).then(data => {
   if (data.length > 0) {
   res.json({
@@ -63,10 +64,10 @@ router.get('/filteredRealtys', async (req, res) => {
 // Route pour ajouter un nouveau bien immobilier
 router.post('/addRealtys', async (req, res) => {
   //console.log("Requete reçue :", req.body);
-  const {description, price, livingArea, outdoorArea, rooms,terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId} = req.body;
+  const {description, price, livingArea, outdoorArea, rooms, terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId} = req.body;
   const token = req.headers.authorization; // Récupérer le token depuis les headers
   console.log(token)
-  if (!checkBody(req.body, ['description', 'price', 'livingArea', 'outdoorArea', 'rooms', 'terrace' ,'typeOfRealty' ,'delay' ,'budget' ,'financed' , 'imageUrl'])) {
+  if (!checkBody(req.body, ['description', 'price', 'livingArea', 'outdoorArea', 'rooms', 'typeOfRealty' ,'delay' ,'budget', 'imageUrl'])) {
     //console.log("Vérification des champs :", checkBody(req.body, ['description', 'location', 'numberOfRooms', 'price', 'landArea', 'livingArea', 'propertyType', 'terrace']));
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
