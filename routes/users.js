@@ -191,4 +191,53 @@ router.get('/', async (req, res) => {
   }
   });
 
+
+
+// Route GET /notifications
+router.get('/notifications', async (req, res) => {
+  try {
+      // Récupérer l'utilisateur en fonction du token
+      const user = await User.findOne({ token: req.headers.authorization });
+      if (!user) {
+          return res.status(404).json({ message: "Utilisateur introuvable" });
+      }
+
+      // Peupler les "likedBy" dans les notifications utilisateur
+      await user.populate('likedBy');
+
+      // Créer des messages pour les utilisateurs qui ont aimé ce profil
+      const profileNotifications = user.likedBy.map(likedUser => `${likedUser.username} a aimé votre profil`);
+
+      // Récupérer les biens immobiliers associés à l'utilisateur
+      const realties = await Realty.find({ user: user._id });
+
+      // Parcourir les biens immobiliers pour générer les notifications
+      const realtyNotifications = [];
+      for (const realty of realties) {
+        await realty.populate('likedBy');
+    
+        const realtyLikedByNotifications = [];
+    
+        for (const id of realty.likedBy) {
+            const likedUser = await User.findById(id);
+            if (likedUser) {
+                realtyLikedByNotifications.push(`${likedUser.username} a aimé votre bien`);
+            }
+        }
+    
+        realtyNotifications.push(...realtyLikedByNotifications);
+    }
+
+      // Combine toutes les notifications
+      const allNotifications = [...profileNotifications, ...realtyNotifications];
+
+      // Renvoie des notifications au front-end
+      res.json({ notifications: allNotifications });
+  } catch (error) {
+      console.error("Erreur lors de la récupération des notifications :", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des notifications" });
+  }
+});
+
+
 module.exports = router;

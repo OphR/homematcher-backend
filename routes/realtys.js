@@ -35,7 +35,8 @@ router.get('/filteredRealtys', async (req, res) => {
   const user = await User.findOne({ token: token });
   // Rechercher toutes les annonces associées à cet utilisateur
   const realtys = await Realty.find({ user: user._id });
-  filters.realtyId = { $ne: realtys.realtyId };
+  const realtyIds = realtys.map(realty => realty.realtyId);
+  filters.realtyId = { $nin: realtyIds };
   Realty.find(filters).then(data => {
   if (data.length > 0) {
   res.json({
