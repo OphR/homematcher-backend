@@ -27,28 +27,34 @@ router.get('/', async (req, res) => {
 });
 
 // Route pour récupérer Uniquement les biens immobiliers Qui correspond à nos critères de recherche
-router.get('/filteredRealtys', (req, res) => {
+router.get('/filteredRealtys', async (req, res) => {
+  const token = req.headers.authorization;
   const filters = req.query; // Les filtres sont envoyés dans le corps de la requête
   //Exemple : price[$gt] :1200000
+  // Rechercher l'utilisateur correspondant au token
+  const user = await User.findOne({ token: token });
+  // Rechercher toutes les annonces associées à cet utilisateur
+  const realtys = await Realty.find({ user: user._id });
+  filters.realtyId = { $ne: realtys.realtyId };
   Realty.find(filters).then(data => {
-    if (data.length > 0) {
-      res.json({
-        result: true,
-        message: `${data.length} bien(s) immobiliers qui correspond à vos critères de recherche`,
-        realty: data
-      });
-    } else {
-      res.json({
-        result: false,
-        message: 'Aucun bien immobilier n\'a été trouvé en fonction des critères de recherche fournis'
-      })
-    }
-
-  }).catch(err => {
-    console.error(err);
-    res.status(500).json({ result: false, error: "Erreur lors de la récupération des biens immobiliers." });
+  if (data.length > 0) {
+  res.json({
+  result: true,
+  message: `${data.length} bien(s) immobiliers qui correspond à vos critères de recherche`,
+  realty: data
   });
-});
+  } else {
+  res.json({
+  result: false,
+  message: 'Aucun bien immobilier n\'a été trouvé en fonction des critères de recherche fournis'
+  })
+  }
+  
+  }).catch(err => {
+  console.error(err);
+  res.status(500).json({ result: false, error: "Erreur lors de la récupération des biens immobiliers." });
+  });
+  });
 
 
 

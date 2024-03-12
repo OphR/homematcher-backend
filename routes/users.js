@@ -38,9 +38,10 @@ router.post('/forgotpassword', async (req, res) => {
 });
 
 router.get('/filteredUsers', (req, res) => {
+  const token = req.headers.authorization;
   const filters = req.query; // Les filtres sont envoyés dans le corps de la requête
   //Exemple : delay[$lt] :7 , financed : true ,  financialCapacity[$lt] : 100000
-
+  filters.token = { $ne: token }; // ne pas avoir son profil
   User.find(filters).then(data => {
     if (data.length > 0) {
       res.json({
@@ -126,9 +127,9 @@ router.get('/', async (req, res) => {
 // Mise à jour du profil d'un utilisateur
   router.put('/update', async (req, res) => {
     const token = req.headers.authorization; //"50L-TX6qq3OrtIBQkB0tMXKkMVxqMdrh" // Récupérer le token depuis les headers
-    const { email,username, delay, financed, budget, description } = req.body; 
+    const { username, delay, financed, budget, description, selectedImage } = req.body; 
     try {
-      const profil = await User.findOneAndUpdate({token} , { username, delay, budget, financed, description}, { new: true });
+      const profil = await User.findOneAndUpdate({token} , { username, delay, budget, financed, description, selectedImage}, { new: true });
   
       if (!profil) {
          res.json({ message: "profil non trouvé" });
