@@ -239,5 +239,31 @@ router.get('/notifications', async (req, res) => {
   }
 });
 
+router.get('/match', async (req, res) => {
+  try {
+      // Récupérer les IDs des deux users
+      const user1Id = '65f025a9ef763fc1325aab05'//req.query;
+      const realtyId =  '65eaf2daf36aab23894f6ce6'//req.query;
+          // on verifie que l'annonce appartient bine au user qui se trouve dans notre LikedBy
+          const realty = await Realty.findById(realtyId)
+          const realtyUser = realty.user[0]
 
+      // Vérifier si le user 1 a aimé le user 2
+      const user1LikesUser2 = await User.findById(user1Id);
+      const user1LikesUser2Ids = user1LikesUser2.likedBy.filter(e  => e === realtyUser)
+      res.json({user1LikesUser2Ids})
+   /*for (let idLiked of user1LikesUser2Ids) {
+    if (idLiked.includes(realtyUser)) {
+      res.json({result: true, message: "it's a match !"})
+    }else {
+      res.json({result: false, message: "No match found!"})
+   }
+   }*/
+  } catch (error) {
+      console.error(error);
+      res.json({ message: 'Une erreur s\'est produite lors de la récupération des realties.' });
+  }
+});
+//65eee6e33ed60014a54f6f1d
+//65eee6e33ed60014a54f6f1d
 module.exports = router;
