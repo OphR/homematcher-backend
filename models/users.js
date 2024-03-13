@@ -10,7 +10,13 @@ const userSchema = mongoose.Schema({
   budget: Number,
   description: String,
   token: String,
-  likedBy :[{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }]
+  likedBy :[{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
+  notifications: [{ 
+    action: String, // (ex: 'realtyLike', 'profileLike')
+    realtyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Realty' }, 
+    email: String, 
+    notificationMessage: String 
+}]
 });
 
 const User = mongoose.model('users', userSchema);
