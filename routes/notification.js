@@ -101,7 +101,7 @@ router.post('/', async (req, res) => {
     });
 
   // Route DELETE /notifications/:id
-  router.delete('/notifications/:id', async (req, res) => {
+  router.delete('/:id', async (req, res) => {
     try {
     // Récupérer l'utilisateur en fonction du token
     const user = await User.findOne({ token: req.headers.authorization });
