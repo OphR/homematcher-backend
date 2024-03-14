@@ -4,7 +4,7 @@ const User = require('../models/users');
 const Realty = require('../models/realtys');
 
  // Route pour gérer les notifications
- router.post('/notifications', async (req, res) => {
+ router.post('/', async (req, res) => {
   const token = req.headers.authorization;
   try {
     const { realtyId, action, email } = req.body;
@@ -82,7 +82,7 @@ return res.status(200).json({ message: 'Notification envoyée avec succès.', no
 });
 
 // Route GET /notifications
-router.get('/notifications/messages', async (req, res) => {
+router.get('/messages', async (req, res) => {
   try {
     // Récupérer l'utilisateur en fonction du token
     const user = await User.findOne({ token: req.headers.authorization });
@@ -99,7 +99,7 @@ router.get('/notifications/messages', async (req, res) => {
 });
 
 // Route DELETE /notifications/:id
-router.delete('/notifications/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     // Récupérer l'utilisateur en fonction du token
     const user = await User.findOne({ token: req.headers.authorization });
