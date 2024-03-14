@@ -64,7 +64,7 @@ router.get('/filteredRealtys', async (req, res) => {
 // Route pour ajouter un nouveau bien immobilier
 router.post('/addRealtys', async (req, res) => {
   //console.log("Requete reçue :", req.body);
-  const {description, price, livingArea, outdoorArea, rooms, terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId} = req.body;
+  const {location, description, price, livingArea, outdoorArea, rooms, terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId} = req.body;
   const token = req.headers.authorization; // Récupérer le token depuis les headers
   console.log(token)
   if (!checkBody(req.body, ['description', 'price', 'livingArea', 'outdoorArea', 'rooms', 'typeOfRealty' ,'delay' ,'budget', 'imageUrl'])) {
@@ -75,7 +75,7 @@ router.post('/addRealtys', async (req, res) => {
   try {
     const user = await User.findOne({ token: token });
     // Créer un Realty avec les données reçues
-    const realty = new Realty({user: user._id, description, price, livingArea, outdoorArea, rooms, terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId});
+    const realty = new Realty({user: user._id, location, description, price, livingArea, outdoorArea, rooms, terrace ,typeOfRealty ,delay ,budget ,financed , imageUrl, realtyId});
 
     // Enregistrer Realty dans la base de données
     const savedRealty = await realty.save();
