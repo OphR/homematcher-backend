@@ -3,7 +3,7 @@ var router = express.Router();
 const User = require('../models/users');
 const Realty = require('../models/realtys');
 const { checkBody } = require('../modules/checkBody');
-const {sendRecoveryEmail} = require('../modules/sendRecoveryEmail')
+const { sendRecoveryEmail } = require('../modules/sendRecoveryEmail')
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
@@ -64,82 +64,99 @@ router.get('/filteredUsers', (req, res) => {
 
 // Récupère un utilisateurs precis grâce a son tokende la base de données
 router.get('/', async (req, res) => {
-  try{
+  try {
     const token = req.headers.authorization; // Récupérer le token depuis les headers
-// Rechercher l'utilisateur correspondant au token
+    // Rechercher l'utilisateur correspondant au token
     const user = await User.findOne({ token: token });
 
-    res.json({result: true, user})
+    res.json({ result: true, user })
   } catch (error) {
     res.json({ message: error.message });
   }
 });
- 
-  // Inscription d'un nouvel utilisateur
-  router.post('/signup', (req, res) => {
-    if (!checkBody(req.body, ['email', 'password'])) {
-      res.json({ result: false, error: 'Champs manquants ou vides' });
-      return;
+
+// Inscription d'un nouvel utilisateur
+router.post('/signup', (req, res) => {
+  if (!checkBody(req.body, ['email', 'password'])) {
+    res.json({ result: false, error: 'Champs manquants ou vides' });
+    return;
+  }
+
+
+  User.findOne({ email: req.body.email }).then(data => {
+    if (data === null) {
+      const hash = bcrypt.hashSync(req.body.password, 10);
+      if (!validator.isEmail(req.body.email)) {
+        return res.json({ result: false, error: "Veuillez fournir une adresse e-mail valide." });
+      }
+      const newUser = new User({
+        email: req.body.email,
+        password: hash,
+        token: uid2(32),
+      });
+
+      newUser.save().then(newDoc => {
+        res.json({ result: true, user: newDoc });
+      });
+    } else {
+      // User already exists in database
+      res.json({ result: false, error: 'L\'utilisateur existe déjà' });
     }
-  
-   
-    User.findOne({ email: req.body.email }).then(data => {
-      if (data === null) {
-        const hash = bcrypt.hashSync(req.body.password, 10);
-        if (!validator.isEmail(req.body.email)) {
-          return res.json({result: false, error: "Veuillez fournir une adresse e-mail valide."});
-      }
-        const newUser = new User({
-          email: req.body.email,
-          password: hash,
-          token: uid2(32),
-        });
-  
-        newUser.save().then(newDoc => {
-          res.json({ result: true, user: newDoc });
-        });
-      } else {
-        // User already exists in database
-        res.json({ result: false, error: 'L\'utilisateur existe déjà' });
-      }
-    });
   });
+});
 
 // Connexion d'un utilisateur existant
-  router.post('/signin', (req, res) => {
-    if (!checkBody(req.body, ['email', 'password'])) {
-      res.json({ result: false, error: 'Champs manquants ou vides' });
-      return;
+router.post('/signin', (req, res) => {
+  if (!checkBody(req.body, ['email', 'password'])) {
+    res.json({ result: false, error: 'Champs manquants ou vides' });
+    return;
+  }
+
+  User.findOne({ email: req.body.email }).then(data => {
+    if (!validator.isEmail(req.body.email)) {
+      return res.json({ result: false, error: "Veuillez fournir une adresse e-mail valide." });
     }
-  
-    User.findOne({ email: req.body.email }).then(data => {
-      if (!validator.isEmail(req.body.email)) {
-        return res.json({result: false, error:"Veuillez fournir une adresse e-mail valide."});
+    if (data && bcrypt.compareSync(req.body.password, data.password)) {
+      res.json({ result: true, user: data });
+    } else {
+      res.json({ result: false, error: 'Utilisateur non trouvé ou mot de passe incorrect' });
     }
-      if (data && bcrypt.compareSync(req.body.password, data.password)) {
-        res.json({ result: true, user: data });
-      } else {
-        res.json({ result: false, error: 'Utilisateur non trouvé ou mot de passe incorrect' });
-      }
-    });
   });
-  
+});
+
 // Mise à jour du profil d'un utilisateur
-  router.put('/update', async (req, res) => {
-    const token = req.headers.authorization; //"50L-TX6qq3OrtIBQkB0tMXKkMVxqMdrh" // Récupérer le token depuis les headers
-    const { username, delay, financed, budget, description, selectedImage } = req.body; 
-    try {
-      const profil = await User.findOneAndUpdate({token} , { username, delay, budget, financed, description, selectedImage}, { new: true });
-  
-      if (!profil) {
-         res.json({ message: "profil non trouvé" });
-      }
-  
-       res.json(profil); // Retourne le document mis à jour
-    } catch (error) {
-      console.error(error);
-       res.json({ message: "Erreur lors de la mise à jour du profil" });
+router.put('/update', async (req, res) => {
+  const token = req.headers.authorization; //"50L-TX6qq3OrtIBQkB0tMXKkMVxqMdrh" // Récupérer le token depuis les headers
+  const { username, delay, financed, budget, description, selectedImage } = req.body;
+  try {
+    const profil = await User.findOneAndUpdate({ token }, { username, delay, budget, financed, description, selectedImage }, { new: true });
+
+    if (!profil) {
+      res.json({ message: "profil non trouvé" });
     }
-  });
-  
+
+    res.json(profil); // Retourne le document mis à jour
+  } catch (error) {
+    console.error(error);
+    res.json({ message: "Erreur lors de la mise à jour du profil" });
+  }
+});
+
+// GET user by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    res.status(200).json({ result: user });
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'utilisateur :', error);
+    res.status(500).json({ message: 'Une erreur est survenue lors de la récupération de l\'utilisateur' });
+  }
+});
+
 module.exports = router;

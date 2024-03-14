@@ -36,7 +36,7 @@ router.get('/acheteur', async (req, res) => {
      if (user1LikesUser2Ids.includes(realtyUser)){
   
       //si c'est ok c'est match
-        res.json({result: true, message: "it's a match !"})
+        res.json({result: true, message: "it's a match !",  realtyId: realtyId})
   
         //sinon c'est pas bon
       } else {
@@ -75,7 +75,7 @@ router.get('/acheteur', async (req, res) => {
       if (liked.includes(idUser)) {
   
   //si c'est ok c'est match
-        res.json({result: true, message: "it's a match !"})
+        res.json({result: true, message: "it's a match !" })
   
         //sinon c'est pas bon
       } else {
