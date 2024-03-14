@@ -12,7 +12,8 @@ const userSchema = mongoose.Schema({
   token: String,
   likedBy :[{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
   notifications: [{ 
-    action: String, // (ex: 'realtyLike', 'profileLike')
+    action: String, // (ex: 'realtyLike', 'profileLike'),
+    by : String,
     realtyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Realty' }, 
     email: String, 
     notificationMessage: String 
