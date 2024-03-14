@@ -5,7 +5,7 @@ const Realty = require('../models/realtys');
 
 // Route pour gérer les notifications
 router.post('/', async (req, res) => {
-  const token = req.headers.authorization;
+  const token = "SeB3s5pqgwcnzCuh5NZ8eGTBtjwL74ys"//req.headers.authorization;
   try {
   const { realtyId, action, email } = req.body;
   // Exemple : token : rdj4_t625PhSLGrbnVh_QnlZNOO7S8-v , realtyId: 65eedb8381acc97e07b529b2 , action: realtyLike , email : email@gmail.com
@@ -25,7 +25,11 @@ router.post('/', async (req, res) => {
   return res.status(404).json({ message: 'Réalité introuvable' });
   }
   
-  // Ajouter l'utilisateur à la liste des utilisateurs aimant cette réalité
+  // Ajouter l'utilisateur à la liste des utilisateurs aimant cette realty
+  if ( realty.likedBy.includes(user._id)){
+    res.json({ message: "realty déjà liké"})
+    return
+    }
   realty.likedBy.push(user._id);
   await realty.save();
   
@@ -39,7 +43,7 @@ router.post('/', async (req, res) => {
   return res.status(404).json({ message: 'Propriétaire de la réalité introuvable' });
   }
   
-  // Ajouter la notification au propriétaire de la réalité
+  // Ajouter la notification au propriétaire de la realty
   realtyOwner.notifications.push({
   action: 'realtyLike',
   by : user._id,
@@ -56,6 +60,10 @@ router.post('/', async (req, res) => {
   }
   
   // Ajouter l'utilisateur à la liste des utilisateurs aimant ce profil
+  if (likedUser.likedBy.includes(user._id)){
+    res.json({message: "utilisateur déjà liké"})
+    return
+    }
   likedUser.likedBy.push(user._id);
   await likedUser.save();
   
